@@ -41,9 +41,6 @@
         <b>Major Grid Size</b> (meters)
         <br>
         <input class='valid' type='number' id='size' min='1'/>
-        <br>
-        <br>
-        <button type='button' id='calculate' onclick='calculateSoln()'>Calculate</button>
     </form>
 </div>
 <hr>
@@ -71,8 +68,6 @@ const targetSubgridElm = document.getElementById('target-subgrid');
 const rangeElm = document.getElementById('range');
 const bearingElm = document.getElementById('bearing');
 const elevationElm = document.getElementById('elevation');
-
-const btnCalculate = document.getElementById('calculate');
 
 const tooCloseElm = document.getElementById('too-close');
 const tooFarElm = document.getElementById('too-far');
@@ -157,7 +152,6 @@ function validateInputs() {
     valid &= validateSubgrid(originSubgridElm);
     valid &= validateSubgrid(targetSubgridElm);
 
-    btnCalculate.disabled = !valid;
     if (valid)
     {
         calculateSoln();
