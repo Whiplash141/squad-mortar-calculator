@@ -20,14 +20,14 @@
     <form oninput='validateInputs()'>
         <b>Mortar Grid</b> (Ex: A5-232)
         <br>
-        <input class='invalid' type='text' id='origin-x' placeholder='(required)' maxlength='3'/> -
-        <input class='optional' type='text' id='origin-k' placeholder='(optional)'/>
+        <input class='invalid' type='text' id='origin-grid' placeholder='(required)' maxlength='3'/> -
+        <input class='optional' type='text' id='origin-subgrid' placeholder='(optional)'/>
         <br>
         <br>
         <b>Target Grid</b> (Ex: B11-4451)
         <br>
-        <input class='invalid' type='text' id='target-x' placeholder='(required)' maxlength='3'/> -
-        <input class='optional' type='text' id='target-k' placeholder='(optional)'/>
+        <input class='invalid' type='text' id='target-grid' placeholder='(required)' maxlength='3'/> -
+        <input class='optional' type='text' id='target-subgrid' placeholder='(optional)'/>
         <br>
         <br>
         <b>Major Grid Size</b> (meters)
@@ -51,10 +51,10 @@
 </div>
 <script>
 const sizeElm = document.getElementById('size');
-const originXElm = document.getElementById('origin-x');
-const originKpElm = document.getElementById('origin-k');
-const targetXElm = document.getElementById('target-x');
-const targetKpElm = document.getElementById('target-k');
+const originGridElm = document.getElementById('origin-grid');
+const originSubgridElm = document.getElementById('origin-subgrid');
+const targetGridElm = document.getElementById('target-grid');
+const targetSubgridElm = document.getElementById('target-subgrid');
 
 const rangeElm = document.getElementById('range');
 const bearingElm = document.getElementById('bearing');
@@ -137,10 +137,10 @@ const keypadArr = [
 function validateInputs() {
     let valid = true;
     console.log('validating...');
-    valid &= validateGrid(originXElm);
-    valid &= validateGrid(targetXElm);
-    valid &= validateSubgrid(originKpElm);
-    valid &= validateSubgrid(targetKpElm);
+    valid &= validateGrid(originGridElm);
+    valid &= validateGrid(targetGridElm);
+    valid &= validateSubgrid(originSubgridElm);
+    valid &= validateSubgrid(targetSubgridElm);
 
     btnCalculate.disabled = !valid;
 }
@@ -189,14 +189,14 @@ function validateSubgrid(elm)
 function calculateSoln() {
     // Inputs
     let size = parseFloat(sizeElm.value);
-    let originX  = originXElm.value;
-    let originKp = originKpElm.value;
-    let targetX  = targetXElm.value;
-    let targetKp = targetKpElm.value;
+    let originGrid  = originGridElm.value;
+    let originSubgrid = originSubgridElm.value;
+    let targetGrid  = targetGridElm.value;
+    let targetSubgrid = targetSubgridElm.value;
 
     // Calc positions
-    let originPos = gridToCoord(originX, originKp, size);
-    let targetPos = gridToCoord(targetX, targetKp, size);
+    let originPos = gridToCoord(originGrid, originSubgrid, size);
+    let targetPos = gridToCoord(targetGrid, targetSubgrid, size);
 
     // Calc to target
     let originPosNeg = multiplyVectorByScalar(originPos, -1);
@@ -312,7 +312,6 @@ function multiplyVectorByScalar(v, scale) {
 function getVectorMagnitude(v) {
     return Math.sqrt(v.x * v.x + v.y * v.y);
 }
-
 </script>
 </body>
 </html>
