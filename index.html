@@ -11,6 +11,14 @@
         input.optional {
             background-color: lightgray;
         }
+        span.hidden {
+            display: none;
+        }
+        span.error {
+            background-color: maroon;
+            color: white;
+            font-size: x-large;
+        }
     </style>
 </head>
 <body>
@@ -41,13 +49,17 @@
 <hr>
 <div id='outputs'>
     <h2>Outputs</h2>
-    <b>Range:</b> <span id='range'>0 meters</span>
+    <b>Range:</b> <span id='range'>N/A</span>
     <br>
     <br>
-    <b>Bearing:</b> <span id='bearing'>0°</span> 
+    <b>Bearing:</b> <span id='bearing'>N/A</span> 
     <br>
     <br>
-    <b>Elevation:</b> <span id='elevation'>0 mils</span>
+    <b>Elevation:</b> <span id='elevation'>N/A</span>
+    <br>
+    <br>
+    <span id='too-close' class='error hidden'><b>OUT OF RANGE: TARGET TOO CLOSE</b></span>
+    <span id='too-far' class='error hidden'><b>OUT OF RANGE: TARGET TOO FAR</b></span>
 </div>
 <script>
 const sizeElm = document.getElementById('size');
@@ -61,6 +73,9 @@ const bearingElm = document.getElementById('bearing');
 const elevationElm = document.getElementById('elevation');
 
 const btnCalculate = document.getElementById('calculate');
+
+const tooCloseElm = document.getElementById('too-close');
+const tooFarElm = document.getElementById('too-far');
 
 sizeElm.value = 300;
 
@@ -143,8 +158,24 @@ function validateInputs() {
     valid &= validateSubgrid(targetSubgridElm);
 
     btnCalculate.disabled = !valid;
+    if (valid)
+    {
+        calculateSoln();
+    }
+    else
+    {
+        clearOutputs();
+    }
 }
 validateInputs();
+
+function clearOutputs()
+{
+    for (let elm of [rangeElm, bearingElm, elevationElm])
+    {
+        elm.innerText = 'N/A';
+    }
+}
 
 function validateGrid(elm)
 {
@@ -186,6 +217,32 @@ function validateSubgrid(elm)
     return false;
 }
 
+function isTooClose(range)
+{
+    let min = 100000;
+    for (let r in rangeTable)
+    {
+        if (r < min)
+        {
+            min = r;
+        }
+    }
+    return min > range;
+}
+
+function isTooFar(range)
+{
+    let max = -1;
+    for (let r in rangeTable)
+    {
+        if (r > max)
+        {
+            max = r;
+        }
+    }
+    return max < range;
+}
+
 function calculateSoln() {
     // Inputs
     let size = parseFloat(sizeElm.value);
@@ -211,17 +268,34 @@ function calculateSoln() {
     {
         angle = 360.0 + angle;
     }
+    bearingElm.innerText = `${Math.round(angle)}°`;
 
     // Calc range
     let range = getVectorMagnitude(toTarget);
+    rangeElm.innerText = `${Math.round(range)} meters`;
 
     // Calc mils
-    let mils = lerpRangeTable(range);
-
-    // Outputs
-    bearingElm.innerText = `${Math.round(angle)}°`;
-    elevationElm.innerText = `${Math.round(mils)} mils`;
-    rangeElm.innerText = `${Math.round(range)} meters`;
+    console.log('foo');
+    if (isTooClose(range))
+    {
+        tooFarElm.classList.add('hidden');
+        tooCloseElm.classList.remove('hidden');
+        elevationElm.innerText = 'N/A';
+    }
+    else if (isTooFar(range))
+    {
+        tooCloseElm.classList.add('hidden');
+        tooFarElm.classList.remove('hidden');
+        elevationElm.innerText = 'N/A';
+    }
+    else
+    {
+        tooCloseElm.classList.add('hidden');
+        tooFarElm.classList.add('hidden');
+        let mils = lerpRangeTable(range);
+        elevationElm.innerText = `${Math.round(mils)} mils`;
+    }
+    console.log('bar');
 }
 
 // Returns mils
