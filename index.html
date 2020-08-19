@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <style>
+        input.valid {
+            background-color: lightgreen;
+        }
+        input.invalid {
+            background-color: lightpink;
+        }
+        input.optional {
+            background-color: lightgray;
+        }
+    </style>
+</head>
 <body>
-
 <h1>Squad Mortar Calculator</h1>
 <div id='inputs'>
     <h2>Inputs</h2>
-    <form>
-        <b>Mortar Grid</b> (Ex: A-5-232)
+    <form oninput='validateInputs()'>
+        <b>Mortar Grid</b> (Ex: A5-232)
         <br>
-        <input type='text' id='origin-x' placeholder='(required)' maxlength='1'/> -
-        <input type='text' id='origin-y' placeholder='(required)' maxlength='2'/> -
-        <input type='text' id='origin-k' placeholder='(optional)'/>
+        <input class='invalid' type='text' id='origin-x' placeholder='(required)' maxlength='3'/> -
+        <input class='optional' type='text' id='origin-k' placeholder='(optional)'/>
         <br>
         <br>
-        <b>Target Grid</b> (Ex: B-11-4451)
+        <b>Target Grid</b> (Ex: B11-4451)
         <br>
-        <input type='text' id='target-x' placeholder='(required)' maxlength='1'/> -
-        <input type='text' id='target-y' placeholder='(required)' maxlength='2'/> -
-        <input type='text' id='target-k' placeholder='(optional)'/>
+        <input class='invalid' type='text' id='target-x' placeholder='(required)' maxlength='3'/> -
+        <input class='optional' type='text' id='target-k' placeholder='(optional)'/>
         <br>
         <br>
         <b>Major Grid Size</b> (meters)
         <br>
-        <input type='number' id='size' min='1'/>
+        <input class='valid' type='number' id='size' min='1'/>
         <br>
         <br>
-        <button type='button' onclick='calculate()'>Calculate</button>
+        <button type='button' id='calculate' onclick='calculateSoln()'>Calculate</button>
     </form>
 </div>
 <hr>
@@ -39,9 +49,20 @@
     <br>
     <b>Elevation:</b> <span id='elevation'>0 mils</span>
 </div>
-
 <script>
-document.getElementById('size').value = 300;
+const sizeElm = document.getElementById('size');
+const originXElm = document.getElementById('origin-x');
+const originKpElm = document.getElementById('origin-k');
+const targetXElm = document.getElementById('target-x');
+const targetKpElm = document.getElementById('target-k');
+
+const rangeElm = document.getElementById('range');
+const bearingElm = document.getElementById('bearing');
+const elevationElm = document.getElementById('elevation');
+
+const btnCalculate = document.getElementById('calculate');
+
+sizeElm.value = 300;
 
 const rangeTable = {
     50  :  1579,
@@ -98,7 +119,7 @@ const charMap = {
     'x': 24,
     'y': 25,
     'z': 26,
-}
+};
 
 const keypadArr = [
     {x:  0, y:  0}, // 0
@@ -111,21 +132,71 @@ const keypadArr = [
     {x: -1, y: -1}, // 7
     {x:  0, y: -1}, // 8
     {x:  1, y: -1}, // 9
-]
+];
 
-function calculate() {
+function validateInputs() {
+    let valid = true;
+    console.log('validating...');
+    valid &= validateGrid(originXElm);
+    valid &= validateGrid(targetXElm);
+    valid &= validateSubgrid(originKpElm);
+    valid &= validateSubgrid(targetKpElm);
+
+    btnCalculate.disabled = !valid;
+}
+validateInputs();
+
+function validateGrid(elm)
+{
+    let val = elm.value;
+    if (/^[A-Za-z][0-9]+$/.test(val))
+    {
+        elm.classList.add('valid');
+        elm.classList.remove('invalid');
+        return true;
+    }
+
+    elm.classList.add('invalid');
+    elm.classList.remove('valid');
+    return false;
+}
+
+function validateSubgrid(elm)
+{
+    let val = elm.value;
+    if (!val) // empty or undef
+    {
+        elm.classList.add('optional');
+        elm.classList.remove('valid');
+        elm.classList.remove('invalid');
+        return true;
+    }
+
+    if (/^[1-9]+$/.test(val))
+    {
+        elm.classList.add('valid');
+        elm.classList.remove('optional');
+        elm.classList.remove('invalid');
+        return true;
+    }
+
+    elm.classList.add('invalid');
+    elm.classList.remove('optional');
+    elm.classList.remove('valid');
+    return false;
+}
+
+function calculateSoln() {
     // Inputs
-    let size = parseFloat(document.getElementById('size').value);
-    let originX  = document.getElementById('origin-x').value;
-    let originY  = document.getElementById('origin-y').value;
-    let originKp = document.getElementById('origin-k').value;
-    let targetX  = document.getElementById('target-x').value;
-    let targetY  = document.getElementById('target-y').value;
-    let targetKp = document.getElementById('target-k').value;
+    let size = parseFloat(sizeElm.value);
+    let originX  = originXElm.value;
+    let originKp = originKpElm.value;
+    let targetX  = targetXElm.value;
+    let targetKp = targetKpElm.value;
 
     // Calc positions
-    let originPos = gridToCoord(originX, originY, originKp, size);
-    let targetPos = gridToCoord(targetX, targetY, targetKp, size);
+    let originPos = gridToCoord(originX, originKp, size);
+    let targetPos = gridToCoord(targetX, targetKp, size);
 
     // Calc to target
     let originPosNeg = multiplyVectorByScalar(originPos, -1);
@@ -148,14 +219,9 @@ function calculate() {
     let mils = lerpRangeTable(range);
 
     // Outputs
-    let bearingElem = document.getElementById('bearing');
-    let elevationElem = document.getElementById('elevation');
-    let rangeElem = document.getElementById('range');
-
-    bearingElem.innerText = `${Math.round(angle)}°`;
-    elevationElem.innerText = `${Math.round(mils)} mils`;
-    rangeElem.innerText = `${Math.round(range)} meters`;
-   
+    bearingElm.innerText = `${Math.round(angle)}°`;
+    elevationElm.innerText = `${Math.round(mils)} mils`;
+    rangeElm.innerText = `${Math.round(range)} meters`;
 }
 
 // Returns mils
@@ -193,11 +259,14 @@ function lerp(x, x1, y1, x2, y2)
     return m * x + b;
 }
 
-function gridToCoord(gridX, gridY, gridKp, size) {
+function gridToCoord(grid, subgrid, size) {
     let pos = { 
         x: size * 0.5, 
         y: size * 0.5,
     };
+
+    let gridX = grid[0];
+    let gridY = grid.substring(1);
 
     let initOffset = {
         x: (charMap[gridX.toLowerCase()] - 1) * size, // TODO: Check is alpha
@@ -206,10 +275,10 @@ function gridToCoord(gridX, gridY, gridKp, size) {
 
     pos = addVectorToVector(pos, initOffset);
 
-    if (gridKp.length > 0)
+    if (subgrid.length > 0)
     {
         curr_size = size;
-        for (let c of gridKp)
+        for (let c of subgrid)
         {
             // TODO: Check is numeric
             curr_size = curr_size / 3;
@@ -245,6 +314,5 @@ function getVectorMagnitude(v) {
 }
 
 </script>
-
 </body>
 </html>
