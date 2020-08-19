@@ -242,8 +242,9 @@ function validateSubgrid(elm)
 function isTooClose(range)
 {
     let min = 100000;
-    for (let r in rangeTable)
+    for (let val in rangeTable)
     {
+        let r = parseFloat(val);
         if (r < min)
         {
             min = r;
@@ -255,8 +256,9 @@ function isTooClose(range)
 function isTooFar(range)
 {
     let max = -1;
-    for (let r in rangeTable)
+    for (let val in rangeTable)
     {
+        let r = parseFloat(val);
         if (r > max)
         {
             max = r;
