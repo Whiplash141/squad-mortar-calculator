@@ -19,18 +19,20 @@
             color: white;
             font-size: x-large;
         }
-        div#wrapper {
-            width: 100%;
-        }
-        div#inputs {
-            float: left;
-        }
-        div#outputs {
-            float: left;
-            padding-left: 30px;
+        div.wrapper {
+            display: grid;
+            grid-template-columns: auto auto;
         }
         input {
             width: 10ch;
+        }
+        table, td {
+            border: 1px solid black;
+        }
+        td {
+            width: 1.5ch;
+            height: 1.5ch;
+            text-align: center;
         }
     </style>
 </head>
@@ -50,18 +52,43 @@
         are valid. Internally, this page uses the range tables for mortars<br>
         provided in-game, lerps between the values, and warns you if the<br>
         target is out of range.
-        <h3>Valid Grid Coordinate Examples</h3>
-        <ul>
-            <li>A3</li>
-            <li>b2</li>
-            <li>F02</li>
-            <li>C1-12</li>
-            <li>b3-4882111</li>
-        </ul>
+        <div class='wrapper'>
+            <div id='grid-coords'>
+                <h3>Valid Grid Coordinates</h3>
+                <ul>
+                    <li>A3</li>
+                    <li>b2</li>
+                    <li>F02</li>
+                    <li>C1-12</li>
+                    <li>b3-4882111</li>
+                </ul>
+            </div>
+            <div id='kp-table'>
+                <h3>Subgrid Division</h3>
+                <table>
+                    <tr>
+                        <td>7</td>
+                        <td>8</td>
+                        <td>9</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </details>
 </div>
+<br>
 <hr>
-<div id='wrapper'>
+<div class='wrapper'>
     <div id='inputs'>
         <h2>Inputs</h2>
         <form oninput='validateInputs()'>
