@@ -1,0 +1,32 @@
+input.valid {
+    background-color: lightgreen;
+}
+input.invalid {
+    background-color: lightpink;
+}
+input.optional {
+    background-color: lightgray;
+}
+span.hidden {
+    display: none;
+}
+span.error {
+    background-color: maroon;
+    color: white;
+    font-size: x-large;
+}
+div.wrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+input {
+    width: 10ch;
+}
+table, td {
+    border: 1px solid black;
+}
+td {
+    width: 1.5ch;
+    height: 1.5ch;
+    text-align: center;
+}
