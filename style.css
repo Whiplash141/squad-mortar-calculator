@@ -1,3 +1,8 @@
+body {
+    background-color: black;
+    color: white;
+    font-size: 20px;
+}
 input.valid {
     background-color: lightgreen;
 }
@@ -15,18 +20,34 @@ span.error {
     color: white;
     font-size: x-large;
 }
-div.wrapper {
-    display: grid;
-    grid-template-columns: auto auto;
+div#instructions {
+    max-width: 600px;
 }
 input {
     width: 10ch;
+    height: 2ch;
+    font-family: 'Courier New';
+    font-size: 16px;
+    font-weight: bold;
 }
 table, td {
-    border: 1px solid black;
+    border: 1px solid white;
+    border-collapse: collapse;
 }
 td {
-    width: 1.5ch;
-    height: 1.5ch;
+    width: 2ch;
+    height: 2ch;
     text-align: center;
+}
+@media(max-width: 600px) {
+    div.wrapper {
+        display: grid;
+        grid-template-rows: auto auto;
+    }
+}
+@media(min-width: 600px) {
+    div.wrapper {
+        display: grid;
+        grid-template-columns: 300px auto;
+    }
 }
