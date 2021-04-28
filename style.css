@@ -24,11 +24,12 @@ div#instructions {
     max-width: 600px;
 }
 input {
-    width: 10ch;
+    width: 12ch;
     height: 2ch;
     font-family: 'Courier New';
     font-size: 16px;
     font-weight: bold;
+    box-sizing: content-box;
 }
 table, td {
     border: 1px solid white;
