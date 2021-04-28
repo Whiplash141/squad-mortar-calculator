@@ -20,6 +20,9 @@ span.error {
     color: white;
     font-size: x-large;
 }
+span.subtext {
+    font-size: 16px;
+}
 div#instructions {
     max-width: 600px;
 }

@@ -72,17 +72,32 @@
             <input class='optional' type='search' id='target-subgrid' placeholder='(optional)'/>
             <br>
             <br>
+            <b>Downrange Spread</b> (meters)
+            <br>
+            <input class='valid' type='number' id='spread-downrange' min='1'/>
+            <br>
+            <br>
+            <b>Crossrange Spread</b> (meters)
+            <br>
+            <input class='valid' type='number' id='spread-crossrange' min='1'/>
+            <br>
+            <br>
             <b>Major Grid Size</b> (meters)
             <br>
             <input class='valid' type='number' id='size' min='1'/>
+            
         </form>
     </div>
     <div id='outputs'>
         <h2>Outputs</h2>
         <b>Bearing:</b> <span id='bearing'>N/A</span> 
         <br>
+        &emsp;<span id='bearing-spread' class='subtext'>N/A</span> 
+        <br>
         <br>
         <b>Elevation:</b> <span id='elevation'>N/A</span>
+        <br>
+        &emsp;<span id='elevation-spread' class='subtext'>N/A</span> 
         <br>
         <br>
         <span id='too-close' class='error hidden'><b>TARGET TOO CLOSE</b></span>

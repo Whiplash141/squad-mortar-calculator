@@ -1,4 +1,6 @@
 const sizeElm = document.getElementById('size');
+const downrangeSpreadElm = document.getElementById('spread-downrange');
+const crossrangeSpreadElm = document.getElementById('spread-crossrange');
 const originGridElm = document.getElementById('origin-grid');
 const originSubgridElm = document.getElementById('origin-subgrid');
 const targetGridElm = document.getElementById('target-grid');
@@ -7,10 +9,15 @@ const targetSubgridElm = document.getElementById('target-subgrid');
 const bearingElm = document.getElementById('bearing');
 const elevationElm = document.getElementById('elevation');
 
+const bearingSpreadElm = document.getElementById('bearing-spread');
+const elevationSpreadElm = document.getElementById('elevation-spread');
+
 const tooCloseElm = document.getElementById('too-close');
 const tooFarElm = document.getElementById('too-far');
 
 sizeElm.value = 300;
+downrangeSpreadElm.value = 25;
+crossrangeSpreadElm.value = 25;
 
 const rangeTable = {
     50  :  1579,
@@ -103,7 +110,7 @@ validateInputs();
 
 function clearOutputs()
 {
-    for (let elm of [bearingElm, elevationElm])
+    for (let elm of [bearingElm, elevationElm, bearingSpreadElm, elevationSpreadElm])
     {
         elm.innerText = 'N/A';
     }
@@ -200,12 +207,18 @@ function calculateSoln() {
     console.log(`to target: ${JSON.stringify(toTarget)}`);
 
     // Calc bearing
-    let angle = Math.atan2(toTarget.x, toTarget.y) / Math.PI * 180.0;
-    if (angle < 0)
-    {
-        angle = 360.0 + angle;
-    }
+    let angle = calculateVectorAngle(toTarget);
     bearingElm.innerText = `${Math.round(angle)}\u00B0`;
+
+    let crossrangeSpread = parseFloat(crossrangeSpreadElm.value);
+    let crossrangeDirection = {x: -toTarget.y, y: toTarget.x};
+    crossrangeDirection = multiplyVectorByScalar(crossrangeDirection, crossrangeSpread / getVectorMagnitude(crossrangeDirection));
+    console.log(`crossrange dir: ${JSON.stringify(crossrangeDirection)}`);
+    let minCrossrangePos = addVectorToVector(crossrangeDirection, toTarget);
+    let maxCrossrangePos = addVectorToVector(negateVector(crossrangeDirection), toTarget);
+    let minAngle = calculateVectorAngle(minCrossrangePos);
+    let maxAngle = calculateVectorAngle(maxCrossrangePos);
+    bearingSpreadElm.innerText = `Spread: ${Math.round(minAngle)}\u00B0 - ${Math.round(maxAngle)}\u00B0`;
 
     // Calc range
     let range = getVectorMagnitude(toTarget);
@@ -229,6 +242,10 @@ function calculateSoln() {
         tooFarElm.classList.add('hidden');
         let mils = lerpRangeTable(range);
         elevationElm.innerText = `${Math.round(mils)} mils (${Math.round(range)} meters)`;
+        let downrangeSpread = parseFloat(downrangeSpreadElm.value);
+        let milsMax = lerpRangeTable(range + downrangeSpread);
+        let milsMin = lerpRangeTable(range - downrangeSpread);
+        elevationSpreadElm.innerText = `Spread: ${Math.round(milsMin)} mils - ${Math.round(milsMax)} mils`;
     }
 }
 
@@ -301,6 +318,10 @@ function gridToCoord(grid, subgrid, size) {
     return pos;
 }
 
+function negateVector(a) {
+    return { x: -a.x, y: -a.y };
+}
+
 function addVectorToVector(a, b) {
     let res = { 
         x: a.x + b.x,
@@ -319,4 +340,13 @@ function multiplyVectorByScalar(v, scale) {
 
 function getVectorMagnitude(v) {
     return Math.sqrt(v.x * v.x + v.y * v.y);
+}
+
+function calculateVectorAngle(v) {
+    let angle = Math.atan2(v.x, v.y) / Math.PI * 180.0;
+    if (angle < 0)
+    {
+        angle = 360.0 + angle;
+    }
+    return angle;
 }
