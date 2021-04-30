@@ -2,9 +2,7 @@ const sizeElm = document.getElementById('size');
 const downrangeSpreadElm = document.getElementById('spread-downrange');
 const crossrangeSpreadElm = document.getElementById('spread-crossrange');
 const originGridElm = document.getElementById('origin-grid');
-const originSubgridElm = document.getElementById('origin-subgrid');
 const targetGridElm = document.getElementById('target-grid');
-const targetSubgridElm = document.getElementById('target-subgrid');
 
 const bearingElm = document.getElementById('bearing');
 const elevationElm = document.getElementById('elevation');
@@ -94,8 +92,6 @@ function validateInputs() {
     console.log('validating...');
     valid &= validateGrid(originGridElm);
     valid &= validateGrid(targetGridElm);
-    valid &= validateSubgrid(originSubgridElm);
-    valid &= validateSubgrid(targetSubgridElm);
 
     if (valid)
     {
@@ -122,7 +118,7 @@ function clearOutputs()
 function validateGrid(elm)
 {
     let val = elm.value;
-    if (/^[A-Za-z][0-9]+$/.test(val))
+    if (/^[A-Za-z][0-9][0-9]?(\-[0-9]*)?$/.test(val))
     {
         elm.classList.add('valid');
         elm.classList.remove('invalid');
@@ -130,31 +126,6 @@ function validateGrid(elm)
     }
 
     elm.classList.add('invalid');
-    elm.classList.remove('valid');
-    return false;
-}
-
-function validateSubgrid(elm)
-{
-    let val = elm.value;
-    if (!val) // empty or undef
-    {
-        elm.classList.add('optional');
-        elm.classList.remove('valid');
-        elm.classList.remove('invalid');
-        return true;
-    }
-
-    if (/^[1-9]+$/.test(val))
-    {
-        elm.classList.add('valid');
-        elm.classList.remove('optional');
-        elm.classList.remove('invalid');
-        return true;
-    }
-
-    elm.classList.add('invalid');
-    elm.classList.remove('optional');
     elm.classList.remove('valid');
     return false;
 }
@@ -191,13 +162,11 @@ function calculateSoln() {
     // Inputs
     let size = parseFloat(sizeElm.value);
     let originGrid  = originGridElm.value;
-    let originSubgrid = originSubgridElm.value;
     let targetGrid  = targetGridElm.value;
-    let targetSubgrid = targetSubgridElm.value;
 
     // Calc positions
-    let originPos = gridToCoord(originGrid, originSubgrid, size);
-    let targetPos = gridToCoord(targetGrid, targetSubgrid, size);
+    let originPos = gridToCoord(originGrid, size);
+    let targetPos = gridToCoord(targetGrid, size);
 
     // Calc to target
     let originPosNeg = multiplyVectorByScalar(originPos, -1);
@@ -284,14 +253,22 @@ function lerp(x, x1, y1, x2, y2)
     return m * x + b;
 }
 
-function gridToCoord(grid, subgrid, size) {
+function gridToCoord(grid, size) {
     let pos = { 
         x: size * 0.5, 
         y: size * 0.5,
     };
 
     let gridX = grid[0];
-    let gridY = grid.substring(1);
+    let gridAndSubgrid = grid.substring(1);
+    let subgridSplit = gridAndSubgrid.split('-');
+    let gridY = subgridSplit[0];
+    let subgrid = '';
+    if (subgridSplit.length >= 2)
+    {
+        subgrid = subgridSplit[1];
+    }
+    console.log(`${gridX} ${gridY} - ${subgrid}`);
 
     let initOffset = {
         x: (charMap[gridX.toLowerCase()] - 1) * size, // TODO: Check is alpha
